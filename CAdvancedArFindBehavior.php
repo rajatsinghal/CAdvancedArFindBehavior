@@ -49,15 +49,10 @@
 class CAdvancedArFindBehavior extends CActiveRecordBehavior {
 
     public function findColumn($column, $condition='', $params=array()) {
-        $data = array();
         $criteria = $this->owner->getCommandBuilder()->createCriteria($condition,$params);
         $criteria->select = $column;
         $this->owner->applyScopes($criteria);
         $command = $this->owner->getCommandBuilder()->createFindCommand($this->owner->getTableSchema(),$criteria);
-        $results = $command->queryAll();
-        foreach($results as $result) {
-            $data[] = $result[$column];
-        }
-        return $data;
+        return $command->queryColumn();
     }
 }

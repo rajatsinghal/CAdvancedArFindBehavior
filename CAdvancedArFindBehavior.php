@@ -32,9 +32,8 @@
 
  
  ** Things to Notice **
- * The select in cretiria (if present) will be ignored.
- * `with` in cretiria, which is used for eager loading, will be ignored.
- * `beforeFind`, `afterFind` functions also will be ignored.
+  * `beforeFind`, `afterFind` functions will be ignored.
+  * Scopes will work as normal.
 
 
 ** Example **
@@ -53,6 +52,15 @@ class CAdvancedArFindBehavior extends CActiveRecordBehavior {
         $criteria->select = $column;
         $this->owner->applyScopes($criteria);
         $command = $this->owner->getCommandBuilder()->createFindCommand($this->owner->getTableSchema(),$criteria);
-        return $command->queryColumn();
+        if(empty($criteria->with))
+            return $command->queryColumn();
+        else {
+            $finder=new CActiveFinder($this->owner, $criteria->with);
+            $results = $finder->query($criteria, true);
+            $data = array();
+            foreach($results as $result)
+                $data[] = $result[$column];
+            return $data;
+        }
     }
 }
